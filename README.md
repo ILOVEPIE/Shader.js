@@ -41,6 +41,7 @@ Updating uniforms:
 Updating other variable types:
 
   To update variables that are not uniforms you need to use the actual shader program object, this is available by calling:
+
     shader.getShader();
 
 Using the shader:
@@ -53,5 +54,6 @@ Uniform Type Mapping:
   The mappings follow a simple rule, take the method that you would normally use to change it and strip off the begining "uniform" in it's name
 
   Example:
+
     ctx.uniformMatrix2fv() -> "Matrix2fv"
     ctx.uniform4f() -> "4f"
