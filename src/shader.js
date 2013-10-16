@@ -6,44 +6,71 @@
  */
 window.shaderlog = {};
 window["ShaderPrototype"] = Object.create(Object,{
-    _shader:{
-        value: null,
-        writable: true
-    },
-    _keys:{
-        value: Object.create(Object),
-        writable:true
-    },
-    
-    'load':{
-        value: function(vertexUrl,fragmentUrl){
-            if(typeof(window.shaderlog[vertexUrl])==='undefined'){
-                var xmlhttp = new XMLHttpRequest();
-                xmlhttp.open("GET", vertexUrl,false);
-                xmlhttp.send();
-                if ((xmlhttp.status === 200))
-                {
-            			window.shaderlog[vertexUrl] = xmlhttp.responseText;
-                        this.vertSrc = xmlhttp.responseText;
-                }
-            }else{
-                this.vertSrc = window.shaderlog[vertexUrl];
-            }
-            if(typeof(window.shaderlog[fragmentUrl])==='undefined'){
-                var xmlhttp = new XMLHttpRequest();
-                xmlhttp.open("GET", fragmentUrl,false);
-                xmlhttp.send();
-                if ((xmlhttp.status === 200))
-                {
-                		window.shaderlog[fragmentUrl] = xmlhttp.responseText;
-                        this.fragSrc = xmlhttp.responseText;
-                }
-            }else{
-                this.fragSrc = window.shaderlog[fragmentUrl];
-            }
-        }
-    },
-    
+	_shader:{
+		value: null,
+		writable: true
+	},
+	_keys:{
+		value: Object.create(Object),
+		writable:true
+	},
+	
+	'load':{
+		value: function(vertexUrl,fragmentUrl,expire){
+			if(typeof(window.localStorage) === "undefined"||typeof(expire) === 'undefined'||expire <= 0){
+				if(typeof(window.shaderlog[vertexUrl])==='undefined'){
+					var xmlhttp = new XMLHttpRequest();
+					xmlhttp.open("GET", vertexUrl,false);
+					xmlhttp.send();
+					if ((xmlhttp.status === 200))
+					{
+							window.shaderlog[vertexUrl] = xmlhttp.responseText;
+							this.vertSrc = xmlhttp.responseText;
+					}
+				}else{
+					this.vertSrc = window.shaderlog[vertexUrl];
+				}
+				if(typeof(window.shaderlog[fragmentUrl])==='undefined'){
+					var xmlhttp = new XMLHttpRequest();
+					xmlhttp.open("GET", fragmentUrl,false);
+					xmlhttp.send();
+					if ((xmlhttp.status === 200))
+					{
+							window.shaderlog[fragmentUrl] = xmlhttp.responseText;
+							this.fragSrc = xmlhttp.responseText;
+					}
+				}else{
+					this.fragSrc = window.shaderlog[fragmentUrl];
+				}
+				return;
+			}
+			if(window["localStorage"]["getItem"](vertexUrl)=== null ||parseInt(window["localStorage"]["getItem"](vertexUrl).split('\u0003')[1],16)<window["Date"]["now"]()){
+					var xmlhttp = new XMLHttpRequest();
+					xmlhttp.open("GET", vertexUrl,false);
+					xmlhttp.send();
+					if ((xmlhttp.status === 200))
+					{
+							window["localStorage"]["setItem"](vertexUrl,xmlhttp.responseText+"\u0003"+((expire*86400000)+window["Date"]["now"]()).toString(16));
+							this.vertSrc = xmlhttp.responseText;
+					}
+				}else{
+					this.vertSrc = window["localStorage"]["getItem"](vertexUrl).split('\u0003')[0];
+				}
+			if(window["localStorage"]["getItem"](fragmentUrl)=== null||parseInt(window["localStorage"]["getItem"](fragmentUrl).split('\u0003')[1],16)<window["Date"]["now"]()){
+				var xmlhttp = new XMLHttpRequest();
+				xmlhttp.open("GET", fragmentUrl,false);
+				xmlhttp.send();
+				if ((xmlhttp.status === 200))
+				{
+						window["localStorage"]["setItem"](fragmentUrl,xmlhttp.responseText+"\u0003"+((expire*86400000)+window["Date"]["now"]()).toString(16));
+						this.fragSrc = xmlhttp.responseText;
+				}
+			}else{
+				this.fragSrc = window["localStorage"]["getItem"](fragmentUrl).split('\u0003')[0];
+			}
+		}
+	},
+	
 	'updateOption': {
 		value: function(key,value) {
 			if(this._keys[key]){
@@ -160,38 +187,38 @@ window["ShaderPrototype"] = Object.create(Object,{
 			this._frag = this._compile(gl,this.fragSrc,gl["FRAGMENT_SHADER"]);
 			
 			gl["attachShader"](shaderProgram, this._vert);
-            gl["attachShader"](shaderProgram, this._frag);
-            gl["linkProgram"](shaderProgram);
+			gl["attachShader"](shaderProgram, this._frag);
+			gl["linkProgram"](shaderProgram);
 			
 			if (!gl["getProgramParameter"](shaderProgram, gl["LINK_STATUS"])) {
-                gl["deleteProgram"](shaderProgram);
-                gl["deleteShader"](this._vert);
-                gl["deleteShader"](this._frag);
-                err();
+				gl["deleteProgram"](shaderProgram);
+				gl["deleteShader"](this._vert);
+				gl["deleteShader"](this._frag);
+				err();
 				return;
-            }
+			}
 		},
-        writable: false
+		writable: false
 	},
 	
 	_compile: {
 		value: function(gl, source, type) {
-            var shaderHeader = "#ifdef GL_ES\n";
-            shaderHeader += "precision highp float;\n";
-            shaderHeader += "#endif\n";
+			var shaderHeader = "#ifdef GL_ES\n";
+			shaderHeader += "precision highp float;\n";
+			shaderHeader += "#endif\n";
 
-            var shader = gl["createShader"](type);
+			var shader = gl["createShader"](type);
 
-            gl["shaderSource"](shader, shaderHeader + source);
-            gl["compileShader"](shader);
+			gl["shaderSource"](shader, shaderHeader + source);
+			gl["compileShader"](shader);
 
-            if (!gl["getShaderParameter"](shader, gl["COMPILE_STATUS"])) {
-                console.debug(gl["getShaderInfoLog"](shader));
-                gl["deleteShader"](shader);
-                return null;
-            }
+			if (!gl["getShaderParameter"](shader, gl["COMPILE_STATUS"])) {
+				console.debug(gl["getShaderInfoLog"](shader));
+				gl["deleteShader"](shader);
+				return null;
+			}
 
-            return shader;
-        }
+			return shader;
+		}
 	}
 });

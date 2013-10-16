@@ -1,14 +1,15 @@
 Shader.js
 =========
 
-A small and compact closure-compiler compatible javascript library for managing shaders.
+A small and compact closure-compiler compatible JavaScript library for managing shaders.
 
 Features:
 ---------
 
  - shader source caching (speeds up compilation of multiple identical shaders)
- - uniform management (simplifies uniforms to make them easyer to use, reducing the amount of typing required, 1 method will update all types of uniforms.)
- - simplifys rendering code by compacting code that is always required to use a shader into one method
+ - persistent shader source caching (expiration required for this to be used)
+ - uniform management (simplifies uniforms to make them easier to use, reducing the amount of typing required, 1 method will update all types of uniforms.)
+ - simplifies rendering code by compacting code that is always required to use a shader into one method
 
 Usage:
 ------
@@ -17,11 +18,17 @@ To create a shader:
 
     var shader = Object.create(window.ShaderPrototype);
 
-Loading a shader:
+Loading a shader(temporary caching):
 
     var vertexShaderUrl = "http://www.example.com/shaders/vertex_shader.glsl";
     var fragmentShaderUrl = "http://www.example.com/shaders/fragment_shader.glsl";
     shader.load(vertexShaderUrl,fragmentShaderUrl);
+
+Loading a shader(persistent caching):
+
+    var vertexShaderUrl = "http://www.example.com/shaders/vertex_shader.glsl";
+    var fragmentShaderUrl = "http://www.example.com/shaders/fragment_shader.glsl";
+    shader.load(vertexShaderUrl,fragmentShaderUrl,3);// load the shaders and cache them for 3 days (fractional days are allowed)
 
 Compiling a loaded shader:
 
@@ -51,7 +58,7 @@ Using the shader:
 
 Uniform Type Mapping:
 
-  The mappings follow a simple rule, take the method that you would normally use to change it and strip off the begining "uniform" in it's name
+  The mappings follow a simple rule, take the method that you would normally use to change it and strip off the beginning "uniform" in it's name
 
   Example:
 
