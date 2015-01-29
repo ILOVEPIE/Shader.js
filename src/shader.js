@@ -2,6 +2,7 @@
  |   shader.js - A small and compact closure-compiler compatible javascript library for managing shaders.
  |----------------
  |  shader.js, and all compiled versions of shader.js are copyright Patrick Rhodes Martin, 2013.
+ |  (used http://www.jsmini.com/ for minification)
  |-
  */
 window.shaderlog = {};
@@ -191,10 +192,15 @@ window["ShaderPrototype"] = Object.create(Object,{
 			gl["linkProgram"](shaderProgram);
 			
 			if (!gl["getProgramParameter"](shaderProgram, gl["LINK_STATUS"])) {
+				var errorMsg = gl["getProgramInfoLog"](shaderProgram);
 				gl["deleteProgram"](shaderProgram);
 				gl["deleteShader"](this._vert);
 				gl["deleteShader"](this._frag);
-				err();
+                if (err) {
+                    err();
+                } else {
+                    throw new Error(errorMsg);
+                }
 				return;
 			}
 		},
