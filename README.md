@@ -1,5 +1,5 @@
-Shader.js
-=========
+Shader.js [![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/ILOVEPIE/Shader.js.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/ILOVEPIE/Shader.js/context:javascript)
+==========================================================================================================================================================================================================
 
 A small and compact closure-compiler compatible JavaScript library for managing shaders.
 
